@@ -1,0 +1,11 @@
+def bi(p, q, x) = (p(x), q(x))
+def biat(f, x, y) = (f(x), f(y))
+
+# bi
+[1, 2, 3, 4, 5] |> bi$(sum, len) |*> (/) |> print
+
+# bi@
+(6, -3) |*> biat$(abs) |> print
+
+# map
+[2, -4, -3, 5, -1] |> map$(max$(0)) |> list |> print
