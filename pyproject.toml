@@ -1,11 +1,8 @@
 [project]
-name = "lang-dev"
+name = "lang-playground"
 version = "0.1.0"
 requires-python = ">=3.13"
-dependencies = [
-    "jinja2>=3.1.6",
-    "numpy>=2.3.4",
-]
+dependencies = []
 
 [tool.ruff.lint]
 select = [

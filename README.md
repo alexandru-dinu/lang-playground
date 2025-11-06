@@ -1,3 +1,3 @@
-# lang-dev
+# Lang Playground
 
-Random ideas on language implementation.
+Exploring programming languages.
