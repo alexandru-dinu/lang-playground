@@ -1,0 +1,47 @@
+from typing import Callable, List, Tuple, TypeVar, Generic
+
+A = TypeVar('A')
+
+concat = (xss -> sum(xss, []))
+
+class Parser(Generic[A]):
+    def __init__(self, parse: Callable[[str], List[Tuple[A, str]]]):
+        self.parse = parse
+
+    def bind(self, f: Callable[[A], "Parser[B]"]) -> "Parser[B]":
+        def new_parse(s: str) -> List[Tuple[B, str]]:
+            return [f(x).parse(rest) for x, rest in self.parse(s)] |> concat
+        return Parser(new_parse)
+
+    def alt(self, other: "Parser[A]") -> "Parser[A]":
+        def new_parse(s: str) -> List[Tuple[A, str]]:
+            return res if (res := self.parse(s)) else other.parse(s)
+        return Parser(new_parse)
+
+# (p: Parser[A], f: A -> Parser[B]) -> Parser[B]
+operator >.>
+def p >.> f: p.bind(f)
+
+# (p: Parser[A], q: Parser[A]) -> Parser[A]
+operator <|>
+def p <|> q = p.alt(q)
+
+pure: A -> Parser[A] = \
+    Parser(s -> [(x, s)])
+
+failure: () -> Parser[A] = \
+    Parser(s -> [])
+
+move: () -> Parser[str] = \
+    Parser(s -> [(s[0], s[1:])] if s else [])
+
+from_predicate: (str -> bool) -> Parser[str] = \
+    pred -> move() >.> (c -> pure(c) if pred(c) else failure())
+
+charp: str -> Parser[str] = \
+    c -> from_predicate(s -> s == c)
+
+stringp: str -> Parser[str] = \
+    pre -> Parser(s -> [(pre, s[len(pre):])] if s.startswith(pre) else [])
+
+(stringp("foo") <|> stringp("bar")).parse("bar hax") |> print
